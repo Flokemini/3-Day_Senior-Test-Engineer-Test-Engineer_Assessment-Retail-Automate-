@@ -1,10 +1,17 @@
-def simple_cipher_decrypt(encrypted, k):
-    wheel = 'ZABCDEFGHIJKLMNOPQRSTUVWXY'
-    result = ""
+def simpleCipher(encrypted, k):
+    k = k % 26
+    decrypted = ""
 
     for char in encrypted:
-        index = wheel.index(char)
-        new_index = (index - k) % len(wheel)
-        result += wheel[new_index]
+        if 'A' <= char <= 'Z':
+            index = ord(char) - ord('A')
+            new_index = (index - k) % 26
+            decrypted += chr(new_index + ord('A'))
+        elif 'a' <= char <= 'z':
+            index = ord(char) - ord('a')
+            new_index = (index - k) % 26
+            decrypted += chr(new_index + ord('a'))
+        else:
+            decrypted += char
 
-    return result
+    return decrypted
