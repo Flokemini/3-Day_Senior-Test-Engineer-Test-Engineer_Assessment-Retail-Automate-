@@ -1,20 +1,44 @@
 pipeline {
     agent any
+
     stages {
         stage('Checkout Code From Git') {
             steps {
-                git 'https://github.com/your-repository.git'
+                git branch: 'master', url: 'https://github.com/jenkinsci/git-plugin.git'
             }
         }
+
+        stage('Setup Environment') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
         stage('Run Test Automate') {
             steps {
-                sh './run_test.sh'
+                sh '''
+                    . venv/bin/activate
+                    robot --outputdir reports .
+                '''
+            }
+        }
+
+        stage('Send Result To Jenkins') {
+            steps {
+                robot outputPath: 'reports'
+                archiveArtifacts artifacts: 'reports/*.html, reports/*.png'
             }
         }
     }
-    stage('Send Result To Jenkins') {
-        steps {
-            junit 'reports/**/*.xml'
+
+    post {
+        always {
+            echo "Pipeline finished"
         }
     }
 }
